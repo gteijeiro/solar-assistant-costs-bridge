@@ -9,6 +9,7 @@ import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from http.cookiejar import CookieJar
+from pathlib import Path
 from typing import Any
 
 import websockets
@@ -53,7 +54,13 @@ class AuthenticatedSession:
         csrf_token = extract_sign_in_csrf(sign_in_html)
         self.fetch_text("/sign_in", {"_csrf_token": csrf_token, "password": self.config.password})
         totals_html = self.fetch_text("/totals")
-        context = parse_totals_page(totals_html, f"{self.config.base_url}/totals")
+        try:
+            context = parse_totals_page(totals_html, f"{self.config.base_url}/totals")
+        except Exception as exc:  # noqa: BLE001
+            debug_path = Path(self.config.db_path).expanduser().parent / "last_totals_page.html"
+            debug_path.parent.mkdir(parents=True, exist_ok=True)
+            debug_path.write_text(totals_html, encoding="utf-8")
+            raise ValueError(f"{exc}. Se guardo el HTML recibido en {debug_path}") from exc
         return context
 
 

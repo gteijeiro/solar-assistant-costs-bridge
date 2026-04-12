@@ -34,7 +34,7 @@ class TotalsPageParser(HTMLParser):
             self.csrf_token = attr_map.get("content")
         if tag == "body" and "data-gateway-timezone" in attr_map:
             self.gateway_timezone = attr_map.get("data-gateway-timezone")
-        if tag == "div" and "data-phx-main" in attr_map:
+        if "data-phx-main" in attr_map:
             self.root_attrs = attr_map
         if "phx-track-static" in attr_map:
             static_url = attr_map.get("src") or attr_map.get("href")
@@ -55,7 +55,14 @@ def parse_totals_page(html: str, page_url: str) -> TotalsPageContext:
     if not parser.csrf_token:
         raise ValueError("could not find totals page CSRF token")
     if not parser.root_attrs:
-        raise ValueError("totals page does not contain a LiveView root")
+        lowered = html.lower()
+        if 'type="password"' in lowered or "/sign_in" in lowered:
+            raise ValueError(
+                "totals page does not contain a LiveView root; SolarAssistant probablemente devolvio la pantalla de login otra vez"
+            )
+        raise ValueError(
+            "totals page does not contain a LiveView root; la estructura HTML de /totals parece distinta a la esperada"
+        )
 
     root = parser.root_attrs
     return TotalsPageContext(
