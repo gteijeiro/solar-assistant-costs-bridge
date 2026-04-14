@@ -8,15 +8,20 @@ import re
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
+from datetime import datetime
 from http.cookiejar import CookieJar
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import websockets
 
 from .config import AppConfig
 from .html import TotalsPageContext, extract_sign_in_csrf, parse_totals_page
 from .store import StateStore, utc_now
+
+
+DAY_WATCH_INTERVAL_SECONDS = 60
 
 
 @dataclass(slots=True)
@@ -132,18 +137,34 @@ class LiveViewTotalsCollector:
         ) as websocket:
             heartbeat_task = asyncio.create_task(self._heartbeat_loop(websocket))
             receiver_task = asyncio.create_task(self._receive_loop(websocket))
+            day_watch_task: asyncio.Task[None] | None = None
             try:
                 await self._send_join(websocket, page)
                 await self._wait_for_initial_periods(receiver_task)
                 await self._backfill_history(websocket, receiver_task)
-                await receiver_task
+                day_watch_task = asyncio.create_task(
+                    self._day_watch_loop(page.gateway_timezone)
+                )
+                done, _ = await asyncio.wait(
+                    {receiver_task, day_watch_task},
+                    return_when=asyncio.FIRST_COMPLETED,
+                )
+                for task in done:
+                    exc = task.exception()
+                    if exc is not None:
+                        raise exc
             finally:
                 heartbeat_task.cancel()
                 receiver_task.cancel()
+                if day_watch_task is not None:
+                    day_watch_task.cancel()
                 with contextlib.suppress(asyncio.CancelledError):
                     await heartbeat_task
                 with contextlib.suppress(asyncio.CancelledError):
                     await receiver_task
+                if day_watch_task is not None:
+                    with contextlib.suppress(asyncio.CancelledError):
+                        await day_watch_task
                 self.store.mark_disconnected()
 
     async def _send_join(self, websocket: websockets.ClientConnection, page: TotalsPageContext) -> None:
@@ -381,6 +402,26 @@ class LiveViewTotalsCollector:
     async def _raise_if_receiver_finished(receiver_task: asyncio.Task[None]) -> None:
         if receiver_task.done():
             await receiver_task
+
+    async def _day_watch_loop(self, gateway_timezone: str | None) -> None:
+        try:
+            zone = ZoneInfo(gateway_timezone) if gateway_timezone else ZoneInfo("UTC")
+        except Exception:  # noqa: BLE001
+            zone = ZoneInfo("UTC")
+        current_day = datetime.now(zone).date()
+        while True:
+            await asyncio.sleep(DAY_WATCH_INTERVAL_SECONDS)
+            today = datetime.now(zone).date()
+            if today != current_day:
+                self.logger.info(
+                    "calendar day rolled over in %s (%s -> %s); forcing reconnect to refresh totals",
+                    zone.key,
+                    current_day,
+                    today,
+                )
+                raise RuntimeError(
+                    f"day boundary crossed ({current_day} -> {today}); reconnecting to refresh display window"
+                )
 
     def _next_ref(self) -> str:
         self._message_ref += 1
