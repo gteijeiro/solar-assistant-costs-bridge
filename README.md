@@ -18,16 +18,21 @@ Bridge en Python para:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install .
+```
+
+Tambien puedes instalarlo directamente desde GitHub:
+
+```bash
+pipx install "git+https://github.com/gteijeiro/solar-assistant-costs-bridge.git"
 ```
 
 ## Ejecucion
 
 ```bash
-source .venv/bin/activate
 export SA_BASE_URL="http://SOLAR_ASSISTANT_HOST_O_IP"
 export SA_PASSWORD="TU_PASSWORD_DE_SOLAR_ASSISTANT"
-PYTHONPATH=src python -m sa_totals_bridge
+sa-totals-bridge
 ```
 
 La API queda por defecto en:
@@ -73,3 +78,18 @@ Los endpoints de `points` devuelven una sola lista concatenada de todos los peri
 - El collector hace una busqueda hacia atras con `prev-daily` y `prev-monthly`, y luego vuelve al periodo actual con `next-daily` y `next-monthly`.
 - Por defecto intenta traer `12` periodos diarios anteriores y `5` periodos mensuales anteriores.
 - Swagger UI esta en `/docs` y carga assets desde CDN.
+
+## Build y publicacion
+
+Build local:
+
+```bash
+python -m pip install --upgrade build
+python -m build
+```
+
+El repo incluye workflows de GitHub Actions para:
+
+- CI en `push` y `pull_request`,
+- publicacion manual a TestPyPI con `workflow_dispatch`,
+- publicacion a PyPI al crear un tag `v*`.

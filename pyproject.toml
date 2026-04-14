@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "solar-assistant-costs-bridge"
+version = "0.1.0"
+description = "Bridge para capturar Totales de SolarAssistant y publicarlos por HTTP."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+  { name = "Guillermo Teijeiro", email = "gteijeiro29@gmail.com" }
+]
+keywords = ["solarassistant", "energy", "bridge", "websocket", "phoenix-liveview"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: End Users/Desktop",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Home Automation",
+  "Topic :: Internet :: WWW/HTTP :: WSGI :: Server",
+]
+dependencies = [
+  "websockets>=16,<17",
+]
+
+[project.scripts]
+sa-totals-bridge = "sa_totals_bridge.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/gteijeiro/solar-assistant-costs-bridge"
+Repository = "https://github.com/gteijeiro/solar-assistant-costs-bridge"
+Issues = "https://github.com/gteijeiro/solar-assistant-costs-bridge/issues"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["sa_totals_bridge*"]
