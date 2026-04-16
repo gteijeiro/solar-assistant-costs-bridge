@@ -18,12 +18,13 @@ Bridge en Python para:
 ```bash
 sudo apt update
 sudo apt install -y python3-full python3-venv
-mkdir -p /opt/solarcost/bridge
+sudo mkdir -p /opt/solarcost/bridge
+sudo chown -R "$USER":"$USER" /opt/solarcost/bridge
 cd /opt/solarcost/bridge
 python3 -m venv .venv
 source .venv/bin/activate
-pip install --upgrade pip
-pip install solarcost-bridge
+python -m pip install --upgrade pip
+python -m pip install solarcost-bridge
 sudo "$(command -v sa_bridge)" init
 ```
 
@@ -53,7 +54,7 @@ Si quieres una desinstalacion conservando configuracion:
 
 ```bash
 source .venv/bin/activate
-pip uninstall solarcost-bridge
+python -m pip uninstall solarcost-bridge
 ```
 
 O con el asistente interactivo:
@@ -66,12 +67,6 @@ Si quieres tocar un servicio `system`, usa:
 
 ```bash
 sudo "$(command -v sa_bridge)" uninstall
-```
-
-Si instalaste desde el repo, tambien puedes usar:
-
-```bash
-./uninstall.sh
 ```
 
 Si quieres una desinstalacion limpia completa:
@@ -87,21 +82,7 @@ rm -f /ruta/a/data/solar_assistant_totals.sqlite3
 rm -rf /ruta/al/directorio/de/trabajo
 ```
 
-## Despliegue rapido en Raspberry Pi
-
-1. Clona el repo en la Pi.
-2. Entra a la carpeta del proyecto.
-3. Ejecuta `./init.sh`.
-4. Responde el asistente interactivo.
-5. Si elegiste `system` o `user`, el script deja generado el service y puede habilitarlo automaticamente.
-
-Ejemplo:
-
-```bash
-git clone https://github.com/gteijeiro/solarcost-bridge.git
-cd solarcost-bridge
-./init.sh
-```
+## Uso diario
 
 Para ver logs del servicio:
 
@@ -109,114 +90,30 @@ Para ver logs del servicio:
 sudo journalctl -u solarcost-bridge.service -f
 ```
 
-## Ejecucion
+Para reiniciarlo:
 
 ```bash
-export SA_BASE_URL="http://SOLAR_ASSISTANT_HOST_O_IP"
-export SA_PASSWORD="TU_PASSWORD_DE_SOLAR_ASSISTANT"
-sa_bridge
+sudo systemctl restart solarcost-bridge.service
 ```
 
-Tambien puedes usar el subcomando explicito:
+Si prefieres ejecutarlo manualmente:
 
 ```bash
+cd /opt/solarcost/bridge
+source .venv/bin/activate
 sa_bridge run
 ```
 
-La API queda por defecto en:
+La API queda por defecto en `http://127.0.0.1:8765`.
 
-- `http://127.0.0.1:8765`
-- `http://<tu-ip-local>:8765`
-
-## Como funciona la actualizacion
-
-- El bridge abre una sesion autenticada contra Solar Assistant.
-- Luego abre un websocket de Phoenix LiveView hacia la solapa `Totales`.
-- La API HTTP del bridge no abre un websocket por cada request.
-- Cada request a la API solo devuelve el ultimo snapshot guardado en memoria y SQLite.
-- `SA_HEARTBEAT_INTERVAL` mantiene viva la conexion websocket.
-- `SA_REFRESH_INTERVAL` fuerza una resincronizacion periodica del periodo actual porque la vista `Totales` no siempre emite cambios nuevos por si sola.
-
-En otras palabras:
-
-- `heartbeat` no trae datos nuevos, solo evita que la conexion muera.
-- `refresh` vuelve a abrir la sesion del collector y refresca los valores actuales.
-
-Por defecto el bridge:
-
-- manda heartbeat cada `30` segundos,
-- fuerza resincronizacion cada `10` segundos,
-- hace backfill historico una vez al arrancar el collector,
-- despues mantiene el historial ya guardado y solo refresca el periodo actual.
-
-Si quieres menos carga en la Pi o en Solar Assistant:
+## Actualizacion
 
 ```bash
-export SA_DAILY_HISTORY_PERIODS="6"
-export SA_MONTHLY_HISTORY_PERIODS="3"
-export SA_REFRESH_INTERVAL="20"
+cd /opt/solarcost/bridge
+source .venv/bin/activate
+python -m pip install --upgrade solarcost-bridge
+sudo systemctl restart solarcost-bridge.service
 ```
-
-Si quieres desactivar la resincronizacion forzada y dejar solo el websocket:
-
-```bash
-export SA_REFRESH_INTERVAL="0"
-```
-
-## Endpoints
-
-- `GET /health`
-- `GET /state`
-- `GET /totals/daily`
-- `GET /totals/daily/points`
-- `GET /totals/monthly`
-- `GET /totals/monthly/points`
-- `GET /openapi.json`
-- `GET /docs`
-
-Los endpoints de `points` devuelven una sola lista concatenada de todos los periodos cargados. Si necesitas un periodo puntual, puedes usar `?period_key=...`.
-
-## Variables disponibles
-
-- `SA_BASE_URL`
-- `SA_PASSWORD`
-- `SA_BIND_HOST`
-- `SA_BIND_PORT`
-- `SA_DB_PATH`
-- `SA_LOG_LEVEL`
-- `SA_RECONNECT_DELAY`
-- `SA_HEARTBEAT_INTERVAL`
-- `SA_REFRESH_INTERVAL`
-- `SA_CONNECT_TIMEOUT`
-- `SA_DAILY_HISTORY_PERIODS`
-- `SA_MONTHLY_HISTORY_PERIODS`
-
-## Diagnostico rapido
-
-Para saber si el bridge esta trayendo datos recientes, revisa:
-
-- `GET /health`
-- `GET /state`
-
-Campos utiles:
-
-- `service.connected`
-- `service.last_login_at`
-- `service.last_join_at`
-- `service.last_message_at`
-- `service.last_error`
-- `daily.updated_at`
-- `monthly.updated_at`
-
-Si `connected=true` pero `last_message_at` o `daily.updated_at` quedan viejos durante mucho tiempo, normalmente significa que Solar Assistant no esta empujando diffs nuevos y dependes del `SA_REFRESH_INTERVAL`.
-
-## Recomendacion de seguridad
-
-- No guardes `SA_PASSWORD` en archivos versionados.
-- No subas la base `data/solar_assistant_totals.sqlite3` a GitHub.
-- Si usas `.env`, mantenlo fuera del repositorio.
-
-## Notas
 
 - El collector hace una busqueda hacia atras con `prev-daily` y `prev-monthly`, y luego vuelve al periodo actual con `next-daily` y `next-monthly`.
 - Por defecto intenta traer `12` periodos diarios anteriores y `5` periodos mensuales anteriores.
