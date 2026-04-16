@@ -3,9 +3,9 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "solar-assistant-costs-bridge"
-version = "0.3.1"
-description = "Bridge para capturar Totales de SolarAssistant y publicarlos por HTTP."
+name = "solarcost-bridge"
+version = "0.1.0"
+description = "SolarCost bridge para capturar Totales de Solar Assistant y publicarlos por HTTP."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -31,13 +31,14 @@ dependencies = [
 ]
 
 [project.scripts]
+sa_bridge = "sa_totals_bridge.__main__:main"
 sa-totals-bridge = "sa_totals_bridge.__main__:main"
 sa-bridge = "sa_totals_bridge.__main__:main"
 
 [project.urls]
-Homepage = "https://github.com/gteijeiro/solar-assistant-costs-bridge"
-Repository = "https://github.com/gteijeiro/solar-assistant-costs-bridge"
-Issues = "https://github.com/gteijeiro/solar-assistant-costs-bridge/issues"
+Homepage = "https://github.com/gteijeiro/solarcost-bridge"
+Repository = "https://github.com/gteijeiro/solarcost-bridge"
+Issues = "https://github.com/gteijeiro/solarcost-bridge/issues"
 
 [tool.setuptools]
 package-dir = { "" = "src" }

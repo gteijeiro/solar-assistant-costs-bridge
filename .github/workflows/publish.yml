@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/solar-assistant-costs-bridge
+      url: https://test.pypi.org/p/solarcost-bridge
     permissions:
       id-token: write
 
@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/solar-assistant-costs-bridge
+      url: https://pypi.org/p/solarcost-bridge
     permissions:
       id-token: write
 

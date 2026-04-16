@@ -1,4 +1,4 @@
-# Solar Assistant Costs Bridge
+# SolarCost Bridge
 
 Bridge en Python para:
 
@@ -18,16 +18,16 @@ Bridge en Python para:
 ```bash
 sudo apt update
 sudo apt install -y python3-full python3-venv
-mkdir -p /opt/solar-assistant/bridge
-cd /opt/solar-assistant/bridge
+mkdir -p /opt/solarcost/bridge
+cd /opt/solarcost/bridge
 python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
-pip install solar-assistant-costs-bridge
-sudo "$(command -v sa-bridge)" init
+pip install solarcost-bridge
+sudo "$(command -v sa_bridge)" init
 ```
 
-El alias corto recomendado es `sa-bridge`. El comando anterior `sa-totals-bridge` sigue funcionando por compatibilidad.
+El comando recomendado es `sa_bridge`. Los comandos anteriores `sa-bridge` y `sa-totals-bridge` siguen funcionando por compatibilidad.
 
 Si prefieres mantener el comando anterior, tambien funciona:
 
@@ -41,7 +41,7 @@ Si Solar Assistant corre en la misma maquina que el bridge, el asistente propone
 
 `pip uninstall` solo elimina el paquete instalado dentro del entorno virtual. No borra automaticamente:
 
-- el archivo `bridge.env`,
+- el archivo `solarcost-bridge.env`,
 - la base SQLite,
 - el directorio de trabajo,
 - los unit files de `systemd`,
@@ -53,19 +53,19 @@ Si quieres una desinstalacion conservando configuracion:
 
 ```bash
 source .venv/bin/activate
-pip uninstall solar-assistant-costs-bridge
+pip uninstall solarcost-bridge
 ```
 
 O con el asistente interactivo:
 
 ```bash
-sa-totals-bridge uninstall
+sa_bridge uninstall
 ```
 
 Si quieres tocar un servicio `system`, usa:
 
 ```bash
-sudo "$(command -v sa-totals-bridge)" uninstall
+sudo "$(command -v sa_bridge)" uninstall
 ```
 
 Si instalaste desde el repo, tambien puedes usar:
@@ -77,12 +77,12 @@ Si instalaste desde el repo, tambien puedes usar:
 Si quieres una desinstalacion limpia completa:
 
 ```bash
-sudo systemctl stop sa-totals-bridge.service
-sudo systemctl disable sa-totals-bridge.service
-sudo rm -f /etc/systemd/system/sa-totals-bridge.service
+sudo systemctl stop solarcost-bridge.service
+sudo systemctl disable solarcost-bridge.service
+sudo rm -f /etc/systemd/system/solarcost-bridge.service
 sudo systemctl daemon-reload
 
-rm -f /ruta/a/bridge.env
+rm -f /ruta/a/solarcost-bridge.env
 rm -f /ruta/a/data/solar_assistant_totals.sqlite3
 rm -rf /ruta/al/directorio/de/trabajo
 ```
@@ -98,15 +98,15 @@ rm -rf /ruta/al/directorio/de/trabajo
 Ejemplo:
 
 ```bash
-git clone https://github.com/gteijeiro/solar-assistant-costs-bridge.git
-cd solar-assistant-costs-bridge
+git clone https://github.com/gteijeiro/solarcost-bridge.git
+cd solarcost-bridge
 ./init.sh
 ```
 
 Para ver logs del servicio:
 
 ```bash
-sudo journalctl -u sa-totals-bridge.service -f
+sudo journalctl -u solarcost-bridge.service -f
 ```
 
 ## Ejecucion
@@ -114,13 +114,13 @@ sudo journalctl -u sa-totals-bridge.service -f
 ```bash
 export SA_BASE_URL="http://SOLAR_ASSISTANT_HOST_O_IP"
 export SA_PASSWORD="TU_PASSWORD_DE_SOLAR_ASSISTANT"
-sa-totals-bridge
+sa_bridge
 ```
 
 Tambien puedes usar el subcomando explicito:
 
 ```bash
-sa-totals-bridge run
+sa_bridge run
 ```
 
 La API queda por defecto en:

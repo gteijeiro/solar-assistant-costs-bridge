@@ -72,7 +72,7 @@ class AppConfig:
         )
         parser.add_argument(
             "--user-agent",
-            default=os.getenv("SA_USER_AGENT", "sa-totals-bridge/0.1"),
+            default=os.getenv("SA_USER_AGENT", "solarcost-bridge/0.1"),
         )
         args = parser.parse_args(argv)
 

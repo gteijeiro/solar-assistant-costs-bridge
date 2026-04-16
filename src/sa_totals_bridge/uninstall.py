@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-PACKAGE_NAME = "solar-assistant-costs-bridge"
+PACKAGE_NAME = "solarcost-bridge"
 
 
 @dataclass(slots=True)
@@ -29,7 +29,7 @@ class BridgeUninstallConfig:
 
 def run_uninstall(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        prog="sa-bridge uninstall",
+        prog="sa_bridge uninstall",
         description="Asistente interactivo para desinstalar el bridge.",
     )
     parser.parse_args(argv)
@@ -48,7 +48,7 @@ def prompt_uninstall_config() -> BridgeUninstallConfig:
             str(Path.cwd()),
         )
     ).expanduser()
-    default_env_path = runtime_dir / "bridge.env"
+    default_env_path = runtime_dir / "solarcost-bridge.env"
     default_db_path = runtime_dir / "data" / "solar_assistant_totals.sqlite3"
 
     service_mode = prompt_choice(
@@ -56,7 +56,7 @@ def prompt_uninstall_config() -> BridgeUninstallConfig:
         choices=("system", "user", "none"),
         default="system" if is_root() else "user",
     )
-    service_name = prompt_text("Nombre del servicio", "sa-totals-bridge.service")
+    service_name = prompt_text("Nombre del servicio", "solarcost-bridge.service")
     service_path: Path | None = None
     if service_mode == "system":
         service_path = Path(prompt_text("Ruta del unit file", f"/etc/systemd/system/{service_name}")).expanduser()
@@ -69,7 +69,7 @@ def prompt_uninstall_config() -> BridgeUninstallConfig:
         ).expanduser()
 
     remove_service = prompt_yes_no("Detener, deshabilitar y borrar el servicio", True)
-    remove_env_file = prompt_yes_no("Borrar el archivo bridge.env", False)
+    remove_env_file = prompt_yes_no("Borrar el archivo solarcost-bridge.env", False)
     remove_db_file = prompt_yes_no("Borrar la base SQLite", False)
     remove_runtime_dir = prompt_yes_no("Borrar todo el directorio de trabajo", False)
     uninstall_package = prompt_yes_no("Ejecutar pip uninstall del paquete", True)
@@ -150,13 +150,13 @@ def print_summary(uninstall_config: BridgeUninstallConfig) -> None:
 
 def permission_help(uninstall_config: BridgeUninstallConfig) -> str:
     executable = Path(sys.argv[0]).expanduser()
-    service_path = uninstall_config.service_path or Path("/etc/systemd/system/sa-totals-bridge.service")
+    service_path = uninstall_config.service_path or Path("/etc/systemd/system/solarcost-bridge.service")
     return (
         "Para desinstalar un servicio de sistema debes ejecutar el asistente con permisos de root. "
-        "Si el paquete esta dentro de un .venv, `sudo sa-totals-bridge uninstall` normalmente no funciona "
+        "Si el paquete esta dentro de un .venv, `sudo sa_bridge uninstall` normalmente no funciona "
         "porque sudo no encuentra el binario del entorno virtual. "
         f"Usa alguno de estos comandos:\n"
-        f"- sudo \"$(command -v sa-totals-bridge)\" uninstall\n"
+        f"- sudo \"$(command -v sa_bridge)\" uninstall\n"
         f"- sudo {executable} uninstall\n"
         "Si prefieres no usar sudo, deja `system` y el servicio intactos o elige `user` si era un servicio de usuario. "
         f"El unit file de sistema esperado es {service_path}."

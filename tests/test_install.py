@@ -40,9 +40,9 @@ class BridgeConfigTests(unittest.TestCase):
 class BridgeInstallerTests(unittest.TestCase):
     def test_build_env_file_contains_expected_values(self) -> None:
         config = BridgeInstallConfig(
-            runtime_dir=Path("/opt/solar-assistant/bridge"),
-            env_path=Path("/opt/solar-assistant/bridge/bridge.env"),
-            db_path=Path("/opt/solar-assistant/bridge/data/solar_assistant_totals.sqlite3"),
+            runtime_dir=Path("/opt/solarcost/bridge"),
+            env_path=Path("/opt/solarcost/bridge/solarcost-bridge.env"),
+            db_path=Path("/opt/solarcost/bridge/data/solar_assistant_totals.sqlite3"),
             base_url="http://127.0.0.1",
             password="secret.123",
             bind_host="0.0.0.0",
@@ -54,10 +54,10 @@ class BridgeInstallerTests(unittest.TestCase):
             connect_timeout=10.0,
             daily_history_periods=6,
             monthly_history_periods=3,
-            user_agent="sa-totals-bridge/0.1",
+            user_agent="solarcost-bridge/0.1",
             service_mode="system",
-            service_name="sa-totals-bridge.service",
-            service_path=Path("/etc/systemd/system/sa-totals-bridge.service"),
+            service_name="solarcost-bridge.service",
+            service_path=Path("/etc/systemd/system/solarcost-bridge.service"),
             service_user="solar-assistant",
             service_group="solar-assistant",
             enable_now=True,
@@ -73,9 +73,9 @@ class BridgeInstallerTests(unittest.TestCase):
 
     def test_build_service_file_uses_current_module_execution(self) -> None:
         config = BridgeInstallConfig(
-            runtime_dir=Path("/opt/solar-assistant/bridge"),
-            env_path=Path("/opt/solar-assistant/bridge/bridge.env"),
-            db_path=Path("/opt/solar-assistant/bridge/data/solar_assistant_totals.sqlite3"),
+            runtime_dir=Path("/opt/solarcost/bridge"),
+            env_path=Path("/opt/solarcost/bridge/solarcost-bridge.env"),
+            db_path=Path("/opt/solarcost/bridge/data/solar_assistant_totals.sqlite3"),
             base_url="http://127.0.0.1",
             password="secret",
             bind_host="0.0.0.0",
@@ -87,26 +87,26 @@ class BridgeInstallerTests(unittest.TestCase):
             connect_timeout=10.0,
             daily_history_periods=6,
             monthly_history_periods=3,
-            user_agent="sa-totals-bridge/0.1",
+            user_agent="solarcost-bridge/0.1",
             service_mode="system",
-            service_name="sa-totals-bridge.service",
-            service_path=Path("/etc/systemd/system/sa-totals-bridge.service"),
+            service_name="solarcost-bridge.service",
+            service_path=Path("/etc/systemd/system/solarcost-bridge.service"),
             service_user="solar-assistant",
             service_group="solar-assistant",
             enable_now=True,
         )
 
-        content = build_service_file(config, Path("/opt/solar-assistant/bridge/.venv/bin/python"))
+        content = build_service_file(config, Path("/opt/solarcost/bridge/.venv/bin/python"))
 
-        self.assertIn("EnvironmentFile=/opt/solar-assistant/bridge/bridge.env", content)
-        self.assertIn("ExecStart=/opt/solar-assistant/bridge/.venv/bin/python -m sa_totals_bridge run", content)
+        self.assertIn("EnvironmentFile=/opt/solarcost/bridge/solarcost-bridge.env", content)
+        self.assertIn("ExecStart=/opt/solarcost/bridge/.venv/bin/python -m sa_totals_bridge run", content)
         self.assertIn("User=solar-assistant", content)
 
     def test_validate_install_config_requires_root_for_system_service(self) -> None:
         config = BridgeInstallConfig(
-            runtime_dir=Path("/opt/solar-assistant/bridge"),
-            env_path=Path("/opt/solar-assistant/bridge/bridge.env"),
-            db_path=Path("/opt/solar-assistant/bridge/data/solar_assistant_totals.sqlite3"),
+            runtime_dir=Path("/opt/solarcost/bridge"),
+            env_path=Path("/opt/solarcost/bridge/solarcost-bridge.env"),
+            db_path=Path("/opt/solarcost/bridge/data/solar_assistant_totals.sqlite3"),
             base_url="http://127.0.0.1",
             password="secret",
             bind_host="0.0.0.0",
@@ -118,10 +118,10 @@ class BridgeInstallerTests(unittest.TestCase):
             connect_timeout=10.0,
             daily_history_periods=6,
             monthly_history_periods=3,
-            user_agent="sa-totals-bridge/0.1",
+            user_agent="solarcost-bridge/0.1",
             service_mode="system",
-            service_name="sa-totals-bridge.service",
-            service_path=Path("/etc/systemd/system/sa-totals-bridge.service"),
+            service_name="solarcost-bridge.service",
+            service_path=Path("/etc/systemd/system/solarcost-bridge.service"),
             service_user="solar-assistant",
             service_group="solar-assistant",
             enable_now=True,
@@ -134,9 +134,9 @@ class BridgeInstallerTests(unittest.TestCase):
 
     def test_permission_help_mentions_full_binary_path(self) -> None:
         config = BridgeInstallConfig(
-            runtime_dir=Path("/opt/solar-assistant/bridge"),
-            env_path=Path("/opt/solar-assistant/bridge/bridge.env"),
-            db_path=Path("/opt/solar-assistant/bridge/data/solar_assistant_totals.sqlite3"),
+            runtime_dir=Path("/opt/solarcost/bridge"),
+            env_path=Path("/opt/solarcost/bridge/solarcost-bridge.env"),
+            db_path=Path("/opt/solarcost/bridge/data/solar_assistant_totals.sqlite3"),
             base_url="http://127.0.0.1",
             password="secret",
             bind_host="0.0.0.0",
@@ -148,10 +148,10 @@ class BridgeInstallerTests(unittest.TestCase):
             connect_timeout=10.0,
             daily_history_periods=6,
             monthly_history_periods=3,
-            user_agent="sa-totals-bridge/0.1",
+            user_agent="solarcost-bridge/0.1",
             service_mode="system",
-            service_name="sa-totals-bridge.service",
-            service_path=Path("/etc/systemd/system/sa-totals-bridge.service"),
+            service_name="solarcost-bridge.service",
+            service_path=Path("/etc/systemd/system/solarcost-bridge.service"),
             service_user="solar-assistant",
             service_group="solar-assistant",
             enable_now=True,
@@ -160,18 +160,18 @@ class BridgeInstallerTests(unittest.TestCase):
         help_text = permission_help(config)
 
         self.assertIn("sudo", help_text)
-        self.assertIn("command -v sa-totals-bridge", help_text)
+        self.assertIn("command -v sa_bridge", help_text)
 
 
 class BridgeUninstallTests(unittest.TestCase):
     def test_validate_uninstall_config_requires_root_for_system_service(self) -> None:
         config = BridgeUninstallConfig(
-            runtime_dir=Path("/opt/solar-assistant/bridge"),
-            env_path=Path("/opt/solar-assistant/bridge/bridge.env"),
-            db_path=Path("/opt/solar-assistant/bridge/data/solar_assistant_totals.sqlite3"),
+            runtime_dir=Path("/opt/solarcost/bridge"),
+            env_path=Path("/opt/solarcost/bridge/solarcost-bridge.env"),
+            db_path=Path("/opt/solarcost/bridge/data/solar_assistant_totals.sqlite3"),
             service_mode="system",
-            service_name="sa-totals-bridge.service",
-            service_path=Path("/etc/systemd/system/sa-totals-bridge.service"),
+            service_name="solarcost-bridge.service",
+            service_path=Path("/etc/systemd/system/solarcost-bridge.service"),
             remove_service=True,
             remove_env_file=False,
             remove_db_file=False,
@@ -186,12 +186,12 @@ class BridgeUninstallTests(unittest.TestCase):
 
     def test_uninstall_permission_help_mentions_subcommand(self) -> None:
         config = BridgeUninstallConfig(
-            runtime_dir=Path("/opt/solar-assistant/bridge"),
-            env_path=Path("/opt/solar-assistant/bridge/bridge.env"),
-            db_path=Path("/opt/solar-assistant/bridge/data/solar_assistant_totals.sqlite3"),
+            runtime_dir=Path("/opt/solarcost/bridge"),
+            env_path=Path("/opt/solarcost/bridge/solarcost-bridge.env"),
+            db_path=Path("/opt/solarcost/bridge/data/solar_assistant_totals.sqlite3"),
             service_mode="system",
-            service_name="sa-totals-bridge.service",
-            service_path=Path("/etc/systemd/system/sa-totals-bridge.service"),
+            service_name="solarcost-bridge.service",
+            service_path=Path("/etc/systemd/system/solarcost-bridge.service"),
             remove_service=True,
             remove_env_file=False,
             remove_db_file=False,
@@ -202,7 +202,7 @@ class BridgeUninstallTests(unittest.TestCase):
         help_text = uninstall_permission_help(config)
 
         self.assertIn("uninstall", help_text)
-        self.assertIn("command -v sa-totals-bridge", help_text)
+        self.assertIn("command -v sa_bridge", help_text)
 
 
 if __name__ == "__main__":

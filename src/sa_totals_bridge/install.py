@@ -39,7 +39,7 @@ class BridgeInstallConfig:
 
 def run_init(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        prog="sa-bridge init",
+        prog="sa_bridge init",
         description="Asistente interactivo para configurar e instalar el bridge.",
     )
     parser.parse_args(argv)
@@ -65,7 +65,7 @@ def prompt_install_config() -> BridgeInstallConfig:
             str(Path.cwd()),
         )
     ).expanduser()
-    default_env_path = runtime_dir / "bridge.env"
+    default_env_path = runtime_dir / "solarcost-bridge.env"
     default_db_path = runtime_dir / "data" / "solar_assistant_totals.sqlite3"
     base_url = prompt_text("URL base de Solar Assistant", "http://127.0.0.1").rstrip("/")
     password = prompt_secret("Password de Solar Assistant")
@@ -78,7 +78,7 @@ def prompt_install_config() -> BridgeInstallConfig:
     connect_timeout = prompt_float("Timeout de conexion", 10.0)
     daily_history_periods = prompt_int("Cantidad de periodos diarios historicos", 12)
     monthly_history_periods = prompt_int("Cantidad de periodos mensuales historicos", 5)
-    user_agent = prompt_text("User-Agent HTTP", "sa-totals-bridge/0.1")
+    user_agent = prompt_text("User-Agent HTTP", "solarcost-bridge/0.1")
     env_path = Path(prompt_text("Archivo de entorno", str(default_env_path))).expanduser()
     db_path = Path(prompt_text("Ruta de la base SQLite", str(default_db_path))).expanduser()
 
@@ -87,7 +87,7 @@ def prompt_install_config() -> BridgeInstallConfig:
         choices=("system", "user", "none"),
         default="system" if is_root() else "user",
     )
-    service_name = prompt_text("Nombre del servicio", "sa-totals-bridge.service")
+    service_name = prompt_text("Nombre del servicio", "solarcost-bridge.service")
     service_user: str | None = None
     service_group: str | None = None
     service_path: Path | None = None
@@ -156,7 +156,7 @@ def validate_install_config(install_config: BridgeInstallConfig) -> None:
 
 def build_env_file(install_config: BridgeInstallConfig) -> str:
     lines = [
-        "# Solar Assistant Costs Bridge",
+        "# SolarCost Bridge",
         env_line("SA_BASE_URL", install_config.base_url),
         env_line("SA_PASSWORD", install_config.password),
         env_line("SA_BIND_HOST", install_config.bind_host),
@@ -186,7 +186,7 @@ def build_service_file(install_config: BridgeInstallConfig, python_executable: P
 
     service_lines = [
         "[Unit]",
-        "Description=Solar Assistant Costs Bridge",
+        "Description=SolarCost Bridge",
         "Wants=network-online.target",
         "After=network-online.target",
         "",
@@ -242,13 +242,13 @@ def print_summary(install_config: BridgeInstallConfig) -> None:
 
 def permission_help(install_config: BridgeInstallConfig) -> str:
     executable = Path(sys.argv[0]).expanduser()
-    service_path = install_config.service_path or Path("/etc/systemd/system/sa-totals-bridge.service")
+    service_path = install_config.service_path or Path("/etc/systemd/system/solarcost-bridge.service")
     return (
         "Para instalar un servicio de sistema debes ejecutar el asistente con permisos de root. "
-        "Si el paquete esta dentro de un .venv, `sudo sa-totals-bridge init` normalmente no funciona "
+        "Si el paquete esta dentro de un .venv, `sudo sa_bridge init` normalmente no funciona "
         "porque sudo no encuentra el binario del entorno virtual. "
         f"Usa alguno de estos comandos:\n"
-        f"- sudo \"$(command -v sa-totals-bridge)\" init\n"
+        f"- sudo \"$(command -v sa_bridge)\" init\n"
         f"- sudo {executable} init\n"
         "Si prefieres no usar sudo, elige `user` como modo de servicio. "
         f"El unit file de sistema se intentaba escribir en {service_path}."
